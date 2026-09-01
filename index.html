@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小饼 BTCs 发币工具</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 16px; }
+  .container { max-width: 480px; margin: 0 auto; }
+  .token-preview { background: #0f3460; border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 16px; }
+  .token-icon-wrap { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #0d2137; border: 2px solid #333; cursor: pointer; transition: border-color 0.2s; position: relative; }
+  .token-icon-wrap:hover { border-color: #9945FF; }
+  .token-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .token-icon-placeholder { font-size: 32px; }
+  .token-name { font-size: 18px; font-weight: bold; color: #fff; }
+  .token-symbol { font-size: 13px; color: #14F195; margin-top: 4px; }
+  .card { background: #16213e; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #333; }
+  .card h2 { color: #14F195; font-size: 15px; margin-bottom: 14px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+  .info-row { background: #0d2137; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 12px; display: flex; justify-content: space-between; }
+  .info-row span:first-child { color: #888; }
+  .info-row span:last-child { color: #fff; font-weight: 600; word-break: break-all; text-align: right; max-width: 60%; }
+  .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; margin-bottom: 10px; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg,#9945FF,#14F195); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { background: #1e3a5f; color: #aaa; font-size: 13px; padding: 10px; }
+  .btn-connect { background: linear-gradient(135deg,#9945FF,#14F195); color: #fff; font-size: 15px; padding: 16px; }
+  .status { background: #0f3460; border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.7; word-break: break-all; }
+  .status.log { max-height: 220px; overflow-y: auto; color: #aaa; }
+  .status.error { color: #ff6b6b; }
+  .status.success { color: #14F195; }
+  .status.info { color: #64b5f6; }
+  .status.warn { color: #ffd166; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
+  .tag-ok { background: #1b4332; color: #14F195; }
+  .tag-warn { background: #5c3d00; color: #ffd166; }
+  .addr { font-size:11px;color:#64b5f6;word-break:all;margin-top:4px; }
+  .footer { text-align: center; color: #555; font-size: 11px; margin-top: 20px; }
+  .warn-box { margin-top:12px;font-size:12px;color:#ffd166;background:#2d1a00;padding:10px;border-radius:8px; }
+  @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+  .spinner { display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px; }
+  .progress-bar { height:4px;background:#333;border-radius:2px;overflow:hidden;margin-top:8px;display:none; }
+  .progress-bar.active { display:block; }
+  .progress-bar-inner { height:100%;background:linear-gradient(90deg,#9945FF,#14F195);width:0%;transition:width 0.3s;border-radius:2px; }
+  .pk-section { margin-top:16px; border:1px solid #5c3d00; padding: 16px; border-radius: 12px; background: #16213e; }
+  .icon-upload-area { border: 2px dashed #444; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #0d2137; }
+  .icon-upload-area:hover { border-color: #9945FF; background: #111d30; }
+  .icon-upload-area.drag-over { border-color: #14F195; background: #0d3320; }
+  .icon-hint { font-size: 11px; color: #666; margin-top: 8px; }
+  .icon-remove-btn { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: #ff6b6b; border: none; border-radius: 50%; color: #fff; font-size: 12px; cursor: pointer; line-height: 20px; z-index: 2; }
+  .meta-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .meta-row input { flex:1; padding:10px 12px; border-radius:8px; border:1px solid #333; background:#0d2137; color:#fff; font-size:13px; }
+  .meta-row input:focus { outline:none; border-color:#9945FF; }
+  .meta-row label { font-size:12px; color:#888; white-space:nowrap; min-width:50px; }
+  .upload-status { font-size:12px; margin-top:8px; color:#aaa; }
+  .upload-status.done { color:#14F195; }
+  .upload-status.err { color:#ff6b6b; }
+  .net-status { font-size:11px; margin-top:6px; color:#888; }
+</style>
+  <script type="module" crossorigin src="/assets/index.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <div class="token-preview">
+    <div class="token-icon-wrap" id="iconWrap" onclick="document.getElementById('iconInput').click()">
+      <span class="token-icon-placeholder" id="iconPlaceholder">🪙</span>
+      <img id="iconPreview" src="" style="display:none;" />
+    </div>
+    <div class="token-name" id="previewName">BTCs</div>
+    <div class="token-symbol" id="previewSymbol">BTCs · 9位精度 · 21,000,000 枚</div>
+    <input type="file" id="iconInput" accept="image/*" style="display:none;" onchange="handleIconSelect(this)">
+  </div>
+
+  <div class="card">
+    <h2>🔗 钱包连接</h2>
+    <div id="walletStatus">
+      <div style="text-align:center; padding:10px 0;">
+        <div id="statusText" style="color:#aaa;font-size:13px;">⏳ 正在初始化...</div>
+        <button class="btn btn-connect" id="btnConnect" onclick="connectTPWallet()" style="margin-top:12px;display:none;">📱 连接 TP 钱包</button>
+      </div>
+    </div>
+    <div id="walletInfo" style="display:none; text-align:center;">
+      <div style="color:#14F195;font-size:13px;">✅ 已连接</div>
+      <div class="addr" id="walletAddr" style="margin-top:6px;"></div>
+      <div id="balanceInfo" style="color:#aaa;font-size:12px;margin-top:4px;"></div>
+      <div id="rpcInfo" class="net-status"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🪙 代币配置</h2>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">🎨 代币图标（可选）</div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:#888;margin-bottom:6px;">🔑 imgbb API Key（<a href="https://api.imgbb.com/" target="_blank" style="color:#64b5f6;">免费注册</a>，仅本地存储）</div>
+          <input type="password" id="imgbbKeyInput" placeholder="点上面链接注册后粘贴 API Key"
+            style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;"
+            oninput="setImgbbKey(this.value.trim())">
+        </div>
+      <div class="icon-upload-area" id="iconUploadArea"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleIconDrop(event)"
+        onclick="document.getElementById('iconInput').click()">
+        <div id="iconUploadPlaceholder">📷 点击或拖拽图片（PNG/JPG，≤2MB）</div>
+        <div class="icon-hint">选完图会自动上传到 imgbb + 写 Metadata 上链</div>
+      </div>
+      <div id="uploadStatus" class="upload-status" style="display:none;"></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">✏️ 代币信息（用于链上 Metadata）</div>
+      <div class="meta-row">
+        <label>名称</label>
+        <input type="text" id="metaName" value="BTCs" maxlength="32" oninput="updatePreview()">
+      </div>
+      <div class="meta-row">
+        <label>符号</label>
+        <input type="text" id="metaSymbol" value="BTCs" maxlength="10" oninput="updatePreview()">
+      </div>
+      <div class="meta-row">
+        <label>描述</label>
+        <input type="text" id="metaDesc" value="BTCs - 总量2100万，去中心化代币" maxlength="200" oninput="updatePreview()">
+      </div>
+    </div>
+    <div class="info-row"><span>小数位</span><span>9</span></div>
+    <div class="info-row"><span>总供应量</span><span>21,000,000 BTCs</span></div>
+    <div class="info-row"><span>收款地址（100%）</span><span style="font-size:10px;">HZKU29z5HfE14TLqrQ5GgkX...b9x7qiE2ksLTd</span></div>
+    <div class="warn-box">⚠️ 建议勾选「撤销权限」，让代币完全去中心化</div>
+    <div style="margin-top:10px;display:flex;align-items:center;font-size:13px;">
+      <input type="checkbox" id="revokeChk" checked style="width:16px;height:16px;margin-right:8px;">
+      <label for="revokeChk" style="color:#e0e0e0;">撤销 Mint & Freeze Authority <span class="tag tag-ok">推荐</span></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🌐 网络</h2>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary" id="btnDevnet" onclick="setNetwork('devnet')" style="flex:1;">🧪 测试网(devnet)</button>
+      <button class="btn btn-secondary" id="btnMainnet" onclick="setNetwork('mainnet')" style="flex:1;">🔥 主网(mainnet)</button>
+    </div>
+    <div id="networkWarn" style="margin-top:8px;font-size:12px;color:#ffd166;display:none;">
+      ⚠️ 主网发币会真实扣 SOL，操作不可逆！
+    </div>
+    <div style="margin-top:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">🔌 自定义 RPC（可选，强烈推荐填你自己的节点）</div>
+      <input type="text" id="rpcInput" placeholder="https://你的-RPC地址（Helius/QuickNode/Alchemy）"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;"
+        oninput="setCustomRpc(this.value.trim())">
+      <div class="icon-hint" style="margin-top:6px;color:#666;">公共 RPC 常被限流/封锁，自备节点最稳。填了以后优先用它。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🚀 创建代币</h2>
+    <button class="btn btn-primary" id="btnCreate" onclick="startCreate()" disabled>🔒 请先连接钱包</button>
+    <div class="progress-bar" id="progressBar"><div class="progress-bar-inner" id="progressInner"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>🔧 补发 / 补 Metadata（现有代币）</h2>
+    <div class="info-row"><span>用途</span><span>针对已发但未完成的代币（如 3G9qq…），补发剩余量 + 写名字/图标</span></div>
+    <div class="meta-row">
+      <label>Mint地址</label>
+      <input type="text" id="existingMint" value="3G9qqoBZCDQuxwCm8qbi3DF17QPQPqJLbDPa7uHoEG8Y" maxlength="64" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
+    </div>
+    <div class="meta-row">
+      <label>补发数量</label>
+      <input type="text" id="topUpAmount" value="10500000" maxlength="20" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
+    </div>
+    <div class="meta-row">
+      <label>图标URL</label>
+      <input type="text" id="metaIconUrl" value="https://i.ibb.co/GQTN35Jy/123.jpg" placeholder="imgbb 图片地址（可选）" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
+    </div>
+    <div class="icon-hint">补发会 mint 到「收款地址」(地址A) 的 ATA；Metadata 用上方名称(BTCs)+此图标。需先连 TP 钱包并选「主网」。</div>
+    <div class="meta-row">
+      <label>自定义 URI (HTTPS，可选)</label>
+      <input type="text" id="updateCustomUri" placeholder="填了直接用，绕过所有 paste 服务" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
+      <div class="icon-hint" style="font-size:10px;margin-top:4px;">paste 服务都挂了？把 Metadata JSON 粘到 <b>GitHub Gist</b> → 点 <b>Raw</b> → 复制链接粘到上面</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <button class="btn btn-primary" id="btnTopUp" onclick="doTopUp()" style="flex:1;">补发到地址A</button>
+      <button class="btn btn-secondary" id="btnWriteMeta" onclick="doWriteMeta()" style="flex:1;">补写 Metadata</button>
+      <button class="btn btn-secondary" id="btnUpdateMeta" onclick="doUpdateMeta()" style="flex:1;">更新 URI</button>
+    </div>
+    <div class="status log" id="topupLog" style="margin-top:10px;max-height:160px;overflow:auto;font-size:11px;"></div>
+  </div>
+
+  <div class="card" id="logCard" style="display:none;">
+    <h2>📋 执行日志</h2>
+    <div class="status log" id="logContent"></div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <h2>✅ 结果</h2>
+    <div class="status success" id="resultContent"></div>
+  </div>
+
+  <div class="pk-section">
+    <h2 style="color:#ffd166;font-size:15px;margin-bottom:10px;">🔑 备用：私钥模式</h2>
+    <p style="font-size:12px;color:#aaa;margin-bottom:10px;">若 TP 钱包签名失败，切换此模式（私钥仅本地使用）</p>
+    <input type="password" id="pkInput" placeholder="粘贴私钥（base58）"
+      style="width:100%;padding:12px;border-radius:8px;border:1px solid #444;background:#0d2137;color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box;">
+    <button class="btn btn-primary" onclick="window.connectWithPrivateKey(document.getElementById('pkInput').value.trim())">🚀 私钥模式创建</button>
+  </div>
+
+  <div class="footer">小饼 BTCs 发币工具</div>
+</div>
+</body>
+</html>
