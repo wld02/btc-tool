@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>小饼 BTCs 发币工具</title>
+<title>发币工具</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 16px; }
@@ -121,12 +121,22 @@
       </div>
       <div class="meta-row">
         <label>描述</label>
-        <input type="text" id="metaDesc" value="BTCs - 总量2100万，去中心化代币" maxlength="200" oninput="updatePreview()">
+        <input type="text" id="metaDesc" value="" maxlength="200" placeholder="代币描述（可选）" oninput="updatePreview()">
       </div>
+      <div class="meta-row">
+        <label>数量</label>
+        <input type="text" id="metaSupply" value="21000000" maxlength="20" oninput="updatePreview()">
+      </div>
+      <div class="meta-row">
+        <label>小数位</label>
+        <input type="text" id="metaDecimals" value="9" maxlength="2" oninput="updatePreview()">
+      </div>
+      <div class="meta-row">
+        <label>收款地址</label>
+        <input type="text" id="metaRecipient" placeholder="留空=发到当前连接的钱包" maxlength="64" oninput="updatePreview()">
+      </div>
+      <div class="icon-hint" style="margin-top:6px;color:#666;">收款地址留空 → 代币发到当前连接的 TP 钱包</div>
     </div>
-    <div class="info-row"><span>小数位</span><span>9</span></div>
-    <div class="info-row"><span>总供应量</span><span>21,000,000 BTCs</span></div>
-    <div class="info-row"><span>收款地址（100%）</span><span style="font-size:10px;">HZKU29z5HfE14TLqrQ5GgkX...b9x7qiE2ksLTd</span></div>
     <div class="warn-box">⚠️ 建议勾选「撤销权限」，让代币完全去中心化</div>
     <div style="margin-top:10px;display:flex;align-items:center;font-size:13px;">
       <input type="checkbox" id="revokeChk" checked style="width:16px;height:16px;margin-right:8px;">
@@ -205,7 +215,7 @@
     <button class="btn btn-primary" onclick="window.connectWithPrivateKey(document.getElementById('pkInput').value.trim())">🚀 私钥模式创建</button>
   </div>
 
-  <div class="footer">小饼 BTCs 发币工具</div>
+  <div class="footer">发币工具</div>
 </div>
 </body>
 </html>
