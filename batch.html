@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>批量转账</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 16px; }
+  .container { max-width: 480px; margin: 0 auto; }
+  .card { background: #16213e; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #333; }
+  .card h2 { color: #14F195; font-size: 15px; margin-bottom: 14px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+  .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; margin-bottom: 10px; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg,#9945FF,#14F195); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { background: #1e3a5f; color: #aaa; font-size: 13px; padding: 10px; }
+  .btn-connect { background: linear-gradient(135deg,#9945FF,#14F195); color: #fff; font-size: 15px; padding: 16px; }
+  .status { background: #0f3460; border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.7; word-break: break-all; }
+  .status.log { max-height: 240px; overflow-y: auto; color: #aaa; }
+  .status.error { color: #ff6b6b; }
+  .status.success { color: #14F195; }
+  .status.info { color: #64b5f6; }
+  .status.warn { color: #ffd166; }
+  .addr { font-size:11px;color:#64b5f6;word-break:break-all;margin-top:4px; }
+  .footer { text-align: center; color: #555; font-size: 11px; margin-top: 20px; }
+  .meta-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .meta-row input, .meta-row select, .meta-row textarea { flex:1; padding:12px 12px; border-radius:8px; border:1px solid #333; background:#0d2137; color:#fff; font-size:14px; box-sizing:border-box; font-family:inherit; }
+  .meta-row input:focus, .meta-row select:focus, .meta-row textarea:focus { outline:none; border-color:#9945FF; }
+  .meta-row label { font-size:14px; font-weight:600; color:#e8e8e8; white-space:nowrap; min-width:84px; }
+  .meta-row-top { align-items:flex-start; }
+  .icon-hint { font-size:11px; color:#666; margin-top:6px; }
+  .net-status { font-size:11px; margin-top:6px; color:#888; }
+  .warn-box { margin-top:12px;font-size:12px;color:#ffd166;background:#2d1a00;padding:10px;border-radius:8px; }
+  @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+  .spinner { display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px; }
+  .progress-bar { height:4px;background:#333;border-radius:2px;overflow:hidden;margin-top:8px;display:none; }
+  .progress-bar.active { display:block; }
+  .progress-bar-inner { height:100%;background:linear-gradient(90deg,#9945FF,#14F195);width:0%;transition:width 0.3s;border-radius:2px; }
+</style>
+  <script type="module" crossorigin src="/assets/batch.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount.js">
+</head>
+<body>
+<div class="container">
+
+  <div class="card">
+    <h2>🪙 批量转账</h2>
+    <p style="font-size:12px;color:#aaa;margin-bottom:10px;">连接 TP 钱包，一次性向多个地址发送 SOL 或 SPL 代币（自动分批签名）。</p>
+  </div>
+
+  <div class="card">
+    <h2>🔗 钱包连接</h2>
+    <div id="walletStatusBatch">
+      <div style="text-align:center; padding:10px 0;">
+        <div id="statusText" style="color:#aaa;font-size:13px;">⏳ 正在初始化...</div>
+        <button class="btn btn-connect" id="btnConnectBatch" onclick="connectWallet()" style="margin-top:12px;display:none;">📱 连接 TP 钱包</button>
+      </div>
+    </div>
+    <div id="walletInfoBatch" style="display:none; text-align:center;">
+      <div style="color:#14F195;font-size:13px;">✅ 已连接</div>
+      <div class="addr" id="walletAddrBatch" style="margin-top:6px;"></div>
+      <div id="balanceInfoBatch" style="color:#aaa;font-size:12px;margin-top:4px;"></div>
+      <div id="rpcInfoBatch" class="net-status"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⚙️ 转账设置</h2>
+    <div class="meta-row">
+      <label>转账类型</label>
+      <select id="tokenType" onchange="onTypeChange()">
+        <option value="SOL">SOL（原生）</option>
+        <option value="SPL">SPL 代币</option>
+      </select>
+    </div>
+    <div class="meta-row meta-row-top" id="mintRow" style="display:none;">
+      <label>代币 Mint</label>
+      <textarea id="mintInput" rows="2" maxlength="64" placeholder="要转账的代币合约地址"></textarea>
+    </div>
+    <div class="meta-row meta-row-top">
+      <label>收款地址</label>
+      <textarea id="recipients" rows="8" placeholder="每行一个地址，或用逗号/空格分隔"></textarea>
+    </div>
+    <div class="icon-hint">支持换行 / 逗号 / 空格分隔；非法地址会自动跳过（不会重复）。</div>
+    <div class="meta-row" style="margin-top:8px;">
+      <label>每地址数量</label>
+      <input type="text" id="amountInput" value="0.01" maxlength="30">
+    </div>
+    <div style="margin-top:8px;display:flex;align-items:center;font-size:13px;">
+      <input type="checkbox" id="skipNoAta" style="width:16px;height:16px;margin-right:8px;">
+      <label for="skipNoAta" style="color:#e0e0e0;">跳过无 ATA 的地址（省租金，不新建账户）</label>
+    </div>
+    <div class="card" style="background:#0d2137;border:none;margin-top:6px;padding:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">🔌 自定义 RPC（可选，强烈推荐自备节点）</div>
+      <input type="text" id="rpcInputBatch" placeholder="https://你的-RPC地址"
+        style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#16213e;color:#fff;font-size:12px;box-sizing:border-box;"
+        oninput="setCustomRpcBatch(this.value.trim())">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🪟 按持币者空投</h2>
+    <p style="font-size:12px;color:#aaa;margin-bottom:10px;">拉取「某代币」的全部持有地址，自动填入上方收款列表（基于 Helius 索引，需自备节点更稳）。</p>
+    <div class="meta-row meta-row-top">
+      <label>条件代币</label>
+      <textarea id="condMint" rows="2" maxlength="64" placeholder="要查持币者的代币 Mint 地址"></textarea>
+    </div>
+    <div class="meta-row">
+      <label>最小持仓</label>
+      <input type="text" id="minBalance" value="0" maxlength="30">
+    </div>
+    <div class="icon-hint">最小持仓单位 = 条件代币本身（0 = 不限制）。仅保留 ≥ 该值的地址，自动去重。</div>
+    <button class="btn btn-secondary" id="btnFetchHolders" onclick="fetchHolders()">🔍 拉取持币者并填入列表</button>
+    <div id="fetchStatus" style="font-size:12px;margin-top:8px;color:#aaa;display:none;"></div>
+  </div>
+
+  <div class="card">
+    <h2>🚀 执行</h2>
+    <button class="btn btn-primary" id="btnBatch" onclick="doBatchTransfer()" disabled>🔒 请先连接钱包</button>
+    <div class="progress-bar" id="progressBar"><div class="progress-bar-inner" id="progressInner"></div></div>
+    <div class="warn-box">⚠️ 主网真实转账，操作不可逆。先小额测试一笔再批量。</div>
+  </div>
+
+  <div class="card" id="logCard" style="display:none;">
+    <h2>📋 执行日志</h2>
+    <div class="status log" id="logContent"></div>
+  </div>
+
+  <a href="index.html" class="btn btn-secondary" style="text-decoration:none;display:block;">← 返回发币工具</a>
+
+  <div class="footer">批量转账工具</div>
+</div>
+<script>
+window.addEventListener('error', function(e){
+  try {
+    var st=document.getElementById('statusText');
+    if(st) st.textContent='❌ 加载错误: '+(e.message||'未知');
+    var lc=document.getElementById('logContent'); var card=document.getElementById('logCard');
+    if(card) card.style.display='block';
+    if(lc){var el=document.createElement('div');el.className='status error';el.textContent='❌ '+(e.message||e);lc.appendChild(el);}
+  } catch(_){}
+});
+function onTypeChange(){
+  var t=document.getElementById('tokenType').value;
+  document.getElementById('mintRow').style.display = t==='SPL' ? 'flex' : 'none';
+}
+</script>
+</body>
+</html>

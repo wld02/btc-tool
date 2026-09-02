@@ -8,13 +8,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; min-height: 100vh; padding: 16px; }
   .container { max-width: 480px; margin: 0 auto; }
-  .token-preview { background: #0f3460; border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 16px; }
-  .token-icon-wrap { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #0d2137; border: 2px solid #333; cursor: pointer; transition: border-color 0.2s; position: relative; }
-  .token-icon-wrap:hover { border-color: #9945FF; }
-  .token-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
-  .token-icon-placeholder { font-size: 32px; }
-  .token-name { font-size: 18px; font-weight: bold; color: #fff; }
-  .token-symbol { font-size: 13px; color: #14F195; margin-top: 4px; }
+
   .card { background: #16213e; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #333; }
   .card h2 { color: #14F195; font-size: 15px; margin-bottom: 14px; border-bottom: 1px solid #333; padding-bottom: 8px; }
   .info-row { background: #0d2137; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 12px; display: flex; justify-content: space-between; }
@@ -48,30 +42,25 @@
   .icon-upload-area:hover { border-color: #9945FF; background: #111d30; }
   .icon-upload-area.drag-over { border-color: #14F195; background: #0d3320; }
   .icon-hint { font-size: 11px; color: #666; margin-top: 8px; }
-  .icon-remove-btn { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: #ff6b6b; border: none; border-radius: 50%; color: #fff; font-size: 12px; cursor: pointer; line-height: 20px; z-index: 2; }
+
   .meta-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-  .meta-row input { flex:1; padding:10px 12px; border-radius:8px; border:1px solid #333; background:#0d2137; color:#fff; font-size:13px; }
+  .meta-row input { flex:1; padding:12px 12px; border-radius:8px; border:1px solid #333; background:#0d2137; color:#fff; font-size:14px; }
   .meta-row input:focus { outline:none; border-color:#9945FF; }
-  .meta-row label { font-size:12px; color:#888; white-space:nowrap; min-width:50px; }
+  .meta-row textarea { flex:1; padding:12px 12px; border-radius:8px; border:1px solid #333; background:#0d2137; color:#fff; font-size:14px; resize:vertical; font-family:inherit; box-sizing:border-box; line-height:1.5; }
+  .meta-row-top { align-items:flex-start; }
+  .meta-row label { font-size:14px; font-weight:600; color:#e8e8e8; white-space:nowrap; min-width:84px; }
   .upload-status { font-size:12px; margin-top:8px; color:#aaa; }
   .upload-status.done { color:#14F195; }
   .upload-status.err { color:#ff6b6b; }
   .net-status { font-size:11px; margin-top:6px; color:#888; }
 </style>
-  <script type="module" crossorigin src="/assets/index.js"></script>
+  <script type="module" crossorigin src="/assets/main.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount.js">
 </head>
 <body>
 <div class="container">
 
-  <div class="token-preview">
-    <div class="token-icon-wrap" id="iconWrap" onclick="document.getElementById('iconInput').click()">
-      <span class="token-icon-placeholder" id="iconPlaceholder">🪙</span>
-      <img id="iconPreview" src="" style="display:none;" />
-    </div>
-    <div class="token-name" id="previewName">BTCs</div>
-    <div class="token-symbol" id="previewSymbol">BTCs · 9位精度 · 21,000,000 枚</div>
-    <input type="file" id="iconInput" accept="image/*" style="display:none;" onchange="handleIconSelect(this)">
-  </div>
+
 
   <div class="card">
     <h2>🔗 钱包连接</h2>
@@ -107,35 +96,36 @@
         <div id="iconUploadPlaceholder">📷 点击或拖拽图片（PNG/JPG，≤2MB）</div>
         <div class="icon-hint">选完图会自动上传到 imgbb + 写 Metadata 上链</div>
       </div>
+      <input type="file" id="iconInput" accept="image/*" style="display:none;" onchange="handleIconSelect(this)">
       <div id="uploadStatus" class="upload-status" style="display:none;"></div>
     </div>
     <div style="margin-bottom:14px;">
-      <div style="font-size:12px;color:#888;margin-bottom:8px;">✏️ 代币信息（用于链上 Metadata）</div>
+      <div style="font-size:13px;color:#bbb;margin-bottom:8px;font-weight:600;">✏️ 代币信息（用于链上 Metadata）</div>
       <div class="meta-row">
-        <label>名称</label>
-        <input type="text" id="metaName" value="BTCs" maxlength="32" oninput="updatePreview()">
+        <label>代币名称</label>
+        <input type="text" id="metaName" value="SOLs" maxlength="32">
       </div>
       <div class="meta-row">
-        <label>符号</label>
-        <input type="text" id="metaSymbol" value="BTCs" maxlength="10" oninput="updatePreview()">
+        <label>代币符号</label>
+        <input type="text" id="metaSymbol" value="SOLs" maxlength="10">
+      </div>
+      <div class="meta-row meta-row-top">
+        <label>代币描述</label>
+        <textarea id="metaDesc" rows="4" maxlength="200" placeholder="（可选）"></textarea>
       </div>
       <div class="meta-row">
-        <label>描述</label>
-        <input type="text" id="metaDesc" value="" maxlength="200" placeholder="代币描述（可选）" oninput="updatePreview()">
-      </div>
-      <div class="meta-row">
-        <label>数量</label>
-        <input type="text" id="metaSupply" value="21000000" maxlength="20" oninput="updatePreview()">
+        <label>代币数量</label>
+        <input type="text" id="metaSupply" value="21000000" maxlength="20">
       </div>
       <div class="meta-row">
         <label>小数位</label>
-        <input type="text" id="metaDecimals" value="9" maxlength="2" oninput="updatePreview()">
+        <input type="text" id="metaDecimals" value="9" maxlength="2">
       </div>
-      <div class="meta-row">
+      <div class="meta-row meta-row-top">
         <label>收款地址</label>
-        <input type="text" id="metaRecipient" placeholder="留空=发到当前连接的钱包" maxlength="64" oninput="updatePreview()">
+        <textarea id="metaRecipient" rows="3" maxlength="64" placeholder="默认发到费用地址（地址A），可改为任意地址">HZKU29z5HfE14TLqrQ5GgkXHQ4G8hKEb9x7qiE2ksLTd</textarea>
       </div>
-      <div class="icon-hint" style="margin-top:6px;color:#666;">收款地址留空 → 代币发到当前连接的 TP 钱包</div>
+      <div class="icon-hint" style="margin-top:6px;color:#666;">默认收款地址为费用地址（地址A HZKU29...ksLTd），可手动改成其他地址；留空则发到当前连接的钱包</div>
     </div>
     <div class="warn-box">⚠️ 建议勾选「撤销权限」，让代币完全去中心化</div>
     <div style="margin-top:10px;display:flex;align-items:center;font-size:13px;">
@@ -146,13 +136,7 @@
 
   <div class="card">
     <h2>🌐 网络</h2>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-primary" id="btnDevnet" onclick="setNetwork('devnet')" style="flex:1;">🧪 测试网(devnet)</button>
-      <button class="btn btn-secondary" id="btnMainnet" onclick="setNetwork('mainnet')" style="flex:1;">🔥 主网(mainnet)</button>
-    </div>
-    <div id="networkWarn" style="margin-top:8px;font-size:12px;color:#ffd166;display:none;">
-      ⚠️ 主网发币会真实扣 SOL，操作不可逆！
-    </div>
+    <div style="font-size:13px;color:#14F195;margin-bottom:10px;">🔥 已锁定主网 (mainnet) — 发币将真实消耗 SOL，操作不可逆</div>
     <div style="margin-top:12px;">
       <div style="font-size:12px;color:#888;margin-bottom:6px;">🔌 自定义 RPC（可选，强烈推荐填你自己的节点）</div>
       <input type="text" id="rpcInput" placeholder="https://你的-RPC地址（Helius/QuickNode/Alchemy）"
@@ -169,32 +153,27 @@
   </div>
 
   <div class="card">
-    <h2>🔧 补发 / 补 Metadata（现有代币）</h2>
-    <div class="info-row"><span>用途</span><span>针对已发但未完成的代币（如 3G9qq…），补发剩余量 + 写名字/图标</span></div>
+    <h2>🔧 补写 Metadata</h2>
+    <div style="font-size:12px;color:#888;margin-bottom:10px;">用于已创建但显示 UNKNOWN / 没名字的代币。用「创建该代币的钱包」连接，签一次即可写上名称。</div>
     <div class="meta-row">
-      <label>Mint地址</label>
-      <input type="text" id="existingMint" value="3G9qqoBZCDQuxwCm8qbi3DF17QPQPqJLbDPa7uHoEG8Y" maxlength="64" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
-    </div>
-    <div class="meta-row">
-      <label>补发数量</label>
-      <input type="text" id="topUpAmount" value="10500000" maxlength="20" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
+      <label>代币合约</label>
+      <input type="text" id="fixMint" placeholder="已存在代币的 Mint 地址" maxlength="64">
     </div>
     <div class="meta-row">
-      <label>图标URL</label>
-      <input type="text" id="metaIconUrl" value="https://i.ibb.co/GQTN35Jy/123.jpg" placeholder="imgbb 图片地址（可选）" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
+      <label>代币名称</label>
+      <input type="text" id="fixName" placeholder="如 SOLs" maxlength="32">
     </div>
-    <div class="icon-hint">补发会 mint 到「收款地址」(地址A) 的 ATA；Metadata 用上方名称(BTCs)+此图标。需先连 TP 钱包并选「主网」。</div>
     <div class="meta-row">
-      <label>自定义 URI (HTTPS，可选)</label>
-      <input type="text" id="updateCustomUri" placeholder="填了直接用，绕过所有 paste 服务" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;">
-      <div class="icon-hint" style="font-size:10px;margin-top:4px;">paste 服务都挂了？把 Metadata JSON 粘到 <b>GitHub Gist</b> → 点 <b>Raw</b> → 复制链接粘到上面</div>
+      <label>代币符号</label>
+      <input type="text" id="fixSymbol" placeholder="如 SOLs" maxlength="10">
     </div>
-    <div style="display:flex;gap:10px;margin-top:10px;">
-      <button class="btn btn-primary" id="btnTopUp" onclick="doTopUp()" style="flex:1;">补发到地址A</button>
-      <button class="btn btn-secondary" id="btnWriteMeta" onclick="doWriteMeta()" style="flex:1;">补写 Metadata</button>
-      <button class="btn btn-secondary" id="btnUpdateMeta" onclick="doUpdateMeta()" style="flex:1;">更新 URI</button>
+    <div class="icon-hint" style="margin-bottom:10px;color:#666;">图标可选：会沿用上方「代币图标」上传的图（如有）；留空则无图。</div>
+    <div style="margin-top:8px;display:flex;align-items:center;font-size:13px;">
+      <input type="checkbox" id="fixRevokeChk" style="width:16px;height:16px;margin-right:8px;">
+      <label for="fixRevokeChk" style="color:#e0e0e0;">补写后撤销 Mint 权（锁死总量，不可再增发）</label>
     </div>
-    <div class="status log" id="topupLog" style="margin-top:10px;max-height:160px;overflow:auto;font-size:11px;"></div>
+    <button class="btn btn-primary" id="btnFixMeta" onclick="startFixMeta()" disabled>🔒 请先连接钱包</button>
+    <div id="fixStatus" class="upload-status" style="display:none;"></div>
   </div>
 
   <div class="card" id="logCard" style="display:none;">
@@ -215,7 +194,25 @@
     <button class="btn btn-primary" onclick="window.connectWithPrivateKey(document.getElementById('pkInput').value.trim())">🚀 私钥模式创建</button>
   </div>
 
+  <div class="card">
+    <h2>🔗 更多工具</h2>
+    <button class="btn btn-secondary" onclick="openRaydiumPool()">🌀 去 Raydium 建流动池</button>
+    <a href="batch.html" class="btn btn-secondary" style="text-decoration:none;margin-top:10px;display:block;">📤 批量转账（独立页面）</a>
+  </div>
+
   <div class="footer">发币工具</div>
 </div>
+<script>
+window.addEventListener('error', function(e){
+  try {
+    var st=document.getElementById('statusText');
+    var msg='❌ 加载错误: '+(e.message||(e.error&&e.error.message)||'未知错误')+' @'+(e.filename||'');
+    if(st) st.textContent=msg;
+    var lc=document.getElementById('logContent'); var card=document.getElementById('logCard');
+    if(card) card.style.display='block';
+    if(lc){var el=document.createElement('div');el.className='status error';el.textContent=msg;lc.appendChild(el);}
+  } catch(_){}
+});
+</script>
 </body>
 </html>
