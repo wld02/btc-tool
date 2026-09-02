@@ -38,7 +38,7 @@
   .progress-bar.active { display:block; }
   .progress-bar-inner { height:100%;background:linear-gradient(90deg,#9945FF,#14F195);width:0%;transition:width 0.3s;border-radius:2px; }
 </style>
-  <script type="module" crossorigin src="/assets/batch-D96LM_dg.js"></script>
+  <script type="module" crossorigin src="/assets/batch-I66NC9XO.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount-DYCypXa9.js">
 </head>
 <body>
@@ -76,7 +76,12 @@
     </div>
     <div class="meta-row meta-row-top" id="mintRow" style="display:none;">
       <label>代币 Mint</label>
-      <textarea id="mintInput" rows="2" maxlength="64" placeholder="要转账的代币合约地址"></textarea>
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px;width:100%;">
+        <select id="walletTokenSelect" onchange="onWalletTokenPick()" style="width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:14px;box-sizing:border-box;">
+          <option value="">— 从我的钱包选择 —</option>
+        </select>
+        <textarea id="mintInput" rows="2" maxlength="64" placeholder="要转账的代币合约地址（或上方直接选）" style="width:100%;"></textarea>
+      </div>
     </div>
     <div class="meta-row meta-row-top">
       <label>收款地址</label>
