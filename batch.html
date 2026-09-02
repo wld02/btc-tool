@@ -38,7 +38,7 @@
   .progress-bar.active { display:block; }
   .progress-bar-inner { height:100%;background:linear-gradient(90deg,#9945FF,#14F195);width:0%;transition:width 0.3s;border-radius:2px; }
 </style>
-  <script type="module" crossorigin src="/assets/batch-Cr0bVUiW.js"></script>
+  <script type="module" crossorigin src="/assets/batch-D96LM_dg.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount-DYCypXa9.js">
 </head>
 <body>
@@ -71,7 +71,7 @@
       <label>转账类型</label>
       <select id="tokenType" onchange="onTypeChange()">
         <option value="SOL">SOL（原生）</option>
-        <option value="SPL">SPL 代币</option>
+        <option value="CUSTOM">SPL 代币（手动填 Mint）</option>
       </select>
     </div>
     <div class="meta-row meta-row-top" id="mintRow" style="display:none;">
@@ -143,7 +143,12 @@ window.addEventListener('error', function(e){
 });
 function onTypeChange(){
   var t=document.getElementById('tokenType').value;
-  document.getElementById('mintRow').style.display = t==='SPL' ? 'flex' : 'none';
+  var row=document.getElementById('mintRow');
+  if (t==='SOL') { row.style.display='none'; }
+  else {
+    row.style.display='flex';
+    if (t.indexOf('TOKEN:')===0) { document.getElementById('mintInput').value = t.slice(6); }
+  }
 }
 </script>
 </body>
