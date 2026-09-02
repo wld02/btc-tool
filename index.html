@@ -21,7 +21,7 @@
   .btn-secondary { background: #1e3a5f; color: #aaa; font-size: 13px; padding: 10px; }
   .btn-connect { background: linear-gradient(135deg,#9945FF,#14F195); color: #fff; font-size: 15px; padding: 16px; }
   .status { background: #0f3460; border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.7; word-break: break-all; }
-  .status.log { max-height: 220px; overflow-y: auto; color: #aaa; }
+  .status.log { max-height: 320px; overflow-y: auto; color: #d0d0d0; font-size: 12px; line-height: 1.6; padding: 4px 0; }
   .status.error { color: #ff6b6b; }
   .status.success { color: #14F195; }
   .status.info { color: #64b5f6; }
@@ -54,7 +54,7 @@
   .upload-status.err { color:#ff6b6b; }
   .net-status { font-size:11px; margin-top:6px; color:#888; }
 </style>
-  <script type="module" crossorigin src="/assets/main.js?v=20260902"></script>
+  <script type="module" crossorigin src="/assets/main.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount.js">
 </head>
 <body>
@@ -66,7 +66,8 @@
     <h2>🔗 钱包连接</h2>
     <div id="walletStatus">
       <div style="text-align:center; padding:10px 0;">
-        <div id="statusText" style="color:#aaa;font-size:13px;">⏳ 正在初始化...</div>
+        <div id="statusText" style="color:#aaa;font-size:13px;min-height:20px;">⏳ 正在初始化...</div>
+        <div id="connHint" style="color:#888;font-size:12px;margin-top:6px;display:none;"></div>
         <button class="btn btn-connect" id="btnConnect" onclick="connectTPWallet()" style="margin-top:12px;display:none;">📱 连接 TP 钱包</button>
       </div>
     </div>
@@ -176,7 +177,7 @@
     <div id="fixStatus" class="upload-status" style="display:none;"></div>
   </div>
 
-  <div class="card" id="logCard" style="display:none;">
+  <div class="card" id="logCard">
     <h2>📋 执行日志</h2>
     <div class="status log" id="logContent"></div>
   </div>
