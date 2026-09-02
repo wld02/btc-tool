@@ -59,6 +59,10 @@
 </head>
 <body>
 <div class="container">
+<div id="diagBanner" style="background:#0d2137;border:1px solid #333;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;display:none;">
+  <div style="color:#ffd166;margin-bottom:4px;">🔍 Wallet Provider 检测结果（页面加载时）</div>
+  <div id="diagContent" style="color:#aaa;line-height:1.8;"></div>
+</div>
 
 
 
@@ -214,6 +218,38 @@ window.addEventListener('error', function(e){
     if(lc){var el=document.createElement('div');el.className='status error';el.textContent=msg;lc.appendChild(el);}
   } catch(_){}
 });
+</script>
+<script>
+// Run IMMEDIATELY when HTML parses — before main.js even loads
+(function(){
+  var keys = ['solana','phantom','tokenpocket','tp','solflare','walletconnect','mathwallet','slope','backpack'];
+  var found = [];
+  var detail = [];
+  keys.forEach(function(k){
+    try {
+      var v = window[k];
+      if (v !== undefined) {
+        found.push(k);
+        var hasConnect = typeof v.connect === 'function';
+        var hasSign = typeof v.signTransaction === 'function' || typeof v.signAndSendTransaction === 'function';
+        var isPhantom = !!(v.isPhantom || (v._isPhantom));
+        var isTokenPocket = !!(v.isTokenPocket || v._isTokenPocket);
+        detail.push(k + (hasConnect ? ' [✓connect]' : ' [✗nocon]') + (hasSign ? '[✓sign]' : '[✗nosign]') + (isPhantom ? '[Phantom]' : '') + (isTokenPocket ? '[TP]' : ''));
+      }
+    } catch(e) { detail.push(k + ' [error: ' + e.message + ']'); }
+  });
+  var banner = document.getElementById('diagBanner');
+  var content = document.getElementById('diagContent');
+  if (banner && content) {
+    if (found.length === 0) {
+      content.innerHTML = '<span style="color:#ff6b6b">❌ 未检测到任何钱包 Provider！</span><br>可能是：① TP WebView 对 github.io 拦截了注入 ② TP 钱包未解锁 ③ 需要在 TP 内置浏览器中打开'; 
+      banner.style.display = 'block';
+    } else {
+      content.innerHTML = '<span style="color:#14F195">✅ 检测到: ' + found.join(', ') + '</span><br>' + detail.join('<br>');
+      banner.style.display = 'block';
+    }
+  }
+})();
 </script>
 </body>
 </html>
