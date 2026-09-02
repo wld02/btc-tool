@@ -37,8 +37,17 @@
   .progress-bar { height:4px;background:#333;border-radius:2px;overflow:hidden;margin-top:8px;display:none; }
   .progress-bar.active { display:block; }
   .progress-bar-inner { height:100%;background:linear-gradient(90deg,#9945FF,#14F195);width:0%;transition:width 0.3s;border-radius:2px; }
+  .type-group { flex:1;display:flex;gap:8px; }
+  .type-btn { flex:1;padding:12px 8px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#aaa;font-size:14px;cursor:pointer;font-family:inherit; }
+  .type-btn.active { background:linear-gradient(135deg,#9945FF,#14F195);color:#fff;border-color:transparent;font-weight:600; }
+  .cs { position:relative; }
+  .cs-trigger { width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:14px;cursor:pointer;text-align:left;font-family:inherit;box-sizing:border-box; }
+  .cs-list { position:absolute;top:100%;left:0;right:0;z-index:50;max-height:220px;overflow-y:auto;background:#0d2137;border:1px solid #333;border-radius:8px;margin-top:4px; }
+  .cs-item { padding:10px 12px;font-size:13px;color:#e0e0e0;border-bottom:1px solid #222;cursor:pointer;word-break:break-all; }
+  .cs-item:last-child { border-bottom:none; }
+  .cs-item:hover { background:#16213e; }
 </style>
-  <script type="module" crossorigin src="/assets/batch-I66NC9XO.js"></script>
+  <script type="module" crossorigin src="/assets/batch-DKuyCqYR.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount-DYCypXa9.js">
 </head>
 <body>
@@ -69,17 +78,19 @@
     <h2>⚙️ 转账设置</h2>
     <div class="meta-row">
       <label>转账类型</label>
-      <select id="tokenType" onchange="onTypeChange()">
-        <option value="SOL">SOL（原生）</option>
-        <option value="CUSTOM">SPL 代币（手动填 Mint）</option>
-      </select>
+      <input type="hidden" id="tokenType" value="SOL">
+      <div class="type-group">
+        <button type="button" class="type-btn active" data-type="SOL" onclick="setType('SOL')">SOL（原生）</button>
+        <button type="button" class="type-btn" data-type="CUSTOM" onclick="setType('CUSTOM')">SPL 代币</button>
+      </div>
     </div>
     <div class="meta-row meta-row-top" id="mintRow" style="display:none;">
       <label>代币 Mint</label>
       <div style="flex:1;display:flex;flex-direction:column;gap:6px;width:100%;">
-        <select id="walletTokenSelect" onchange="onWalletTokenPick()" style="width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:14px;box-sizing:border-box;">
-          <option value="">— 从我的钱包选择 —</option>
-        </select>
+        <div class="cs" id="walletTokenCs">
+          <button type="button" class="cs-trigger" id="walletTokenTrigger" onclick="toggleCs('walletTokenCs')">— 从我的钱包选择 —</button>
+          <div class="cs-list" id="walletTokenList" style="display:none;"></div>
+        </div>
         <textarea id="mintInput" rows="2" maxlength="64" placeholder="要转账的代币合约地址（或上方直接选）" style="width:100%;"></textarea>
       </div>
     </div>
@@ -146,14 +157,21 @@ window.addEventListener('error', function(e){
     if(lc){var el=document.createElement('div');el.className='status error';el.textContent='❌ '+(e.message||e);lc.appendChild(el);}
   } catch(_){}
 });
+function setType(t){
+  document.getElementById('tokenType').value = t;
+  var btns = document.querySelectorAll('.type-btn');
+  for (var i=0;i<btns.length;i++){ btns[i].classList.toggle('active', btns[i].getAttribute('data-type')===t); }
+  onTypeChange();
+}
 function onTypeChange(){
   var t=document.getElementById('tokenType').value;
   var row=document.getElementById('mintRow');
-  if (t==='SOL') { row.style.display='none'; }
-  else {
-    row.style.display='flex';
-    if (t.indexOf('TOKEN:')===0) { document.getElementById('mintInput').value = t.slice(6); }
-  }
+  row.style.display = (t==='SOL') ? 'none' : 'flex';
+}
+function toggleCs(id){
+  var wrap=document.getElementById(id);
+  var list=wrap.querySelector('.cs-list');
+  list.style.display = (list.style.display==='none' || !list.style.display) ? 'block' : 'none';
 }
 </script>
 </body>
