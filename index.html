@@ -54,7 +54,7 @@
   .upload-status.err { color:#ff6b6b; }
   .net-status { font-size:11px; margin-top:6px; color:#888; }
 </style>
-  <script type="module" crossorigin src="/assets/main-dghSs3hG.js"></script>
+  <script type="module" crossorigin src="/assets/main-Dmj-BY_d.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/associatedTokenAccount-DYCypXa9.js">
 </head>
 <body>
@@ -88,8 +88,8 @@
     <div style="margin-bottom:16px;">
       <div style="font-size:12px;color:#888;margin-bottom:8px;">🎨 代币图标（可选）</div>
       <div style="margin-bottom:10px;">
-        <div style="font-size:11px;color:#888;margin-bottom:6px;">🔑 imgbb API Key（<a href="https://api.imgbb.com/" target="_blank" style="color:#64b5f6;">免费注册</a>，仅本地存储）</div>
-          <input type="password" id="imgbbKeyInput" placeholder="点上面链接注册后粘贴 API Key"
+        <div style="font-size:11px;color:#888;margin-bottom:6px;">🔑 imgbb API Key（<a href="https://api.imgbb.com/" target="_blank" style="color:#64b5f6;">免费注册</a>，可选；本地服务器上传优先）</div>
+          <input type="password" id="imgbbKeyInput" placeholder="不填则用本地服务器上传（推荐）"
             style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid #333;background:#0d2137;color:#fff;font-size:12px;box-sizing:border-box;"
             oninput="setImgbbKey(this.value.trim())">
         </div>
@@ -99,7 +99,7 @@
         ondrop="handleIconDrop(event)"
         onclick="document.getElementById('iconInput').click()">
         <div id="iconUploadPlaceholder">📷 点击或拖拽图片（PNG/JPG，≤2MB）</div>
-        <div class="icon-hint">选完图会自动上传到 imgbb + 写 Metadata 上链</div>
+        <div class="icon-hint">选完图会自动上传到本地服务器 + 写 Metadata 上链（无需 API Key）</div>
       </div>
       <input type="file" id="iconInput" accept="image/*" style="display:none;" onchange="handleIconSelect(this)">
       <div id="uploadStatus" class="upload-status" style="display:none;"></div>
@@ -117,6 +117,19 @@
       <div class="meta-row meta-row-top">
         <label>代币描述</label>
         <textarea id="metaDesc" rows="4" maxlength="200" placeholder="（可选）"></textarea>
+      </div>
+      <div style="font-size:13px;color:#bbb;margin:14px 0 8px;font-weight:600;">🔗 社交链接（可选，会显示在代币详情页）</div>
+      <div class="meta-row">
+        <label>X (Twitter)</label>
+        <input type="text" id="metaTwitter" placeholder="https://x.com/你的账号" maxlength="128">
+      </div>
+      <div class="meta-row">
+        <label>Telegram</label>
+        <input type="text" id="metaTelegram" placeholder="https://t.me/你的群或频道" maxlength="128">
+      </div>
+      <div class="meta-row">
+        <label>网站</label>
+        <input type="text" id="metaWebsite" placeholder="https://你的网站.com" maxlength="128">
       </div>
       <div class="meta-row">
         <label>代币数量</label>
